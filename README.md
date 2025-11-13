@@ -1,4 +1,4 @@
-# Postify · Kubernetes Demo API
+# Postify API
 
 API de réseau social moderne avec Node.js/Express, Postgres et JWT — packagée avec Docker Compose, testée par Postman/Newman, intégrée en CI avec GitHub Actions, et prête pour Kubernetes.
 
@@ -14,23 +14,48 @@ API de réseau social moderne avec Node.js/Express, Postgres et JWT — packagé
 - Prérequis: Docker Desktop, Node.js 18 (optionnel), GitHub Actions (pour CI)
 - Lancer les services:
   - Config par variables d’environnement (pas de `.env` versionné)
-  - PowerShell:
-    - `\$env:POSTGRES_USER='postgres'`
-    - `\$env:POSTGRES_PASSWORD='p@ssw0rd'`
-    - `\$env:POSTGRES_DB='postify-db'`
+  - PowerShell (exemple avec placeholders):
+    - `\$env:POSTGRES_USER='<POSTGRES_USER>'`
+    - `\$env:POSTGRES_PASSWORD='<POSTGRES_PASSWORD>'`
+    - `\$env:POSTGRES_DB='<POSTGRES_DB>'`
     - `\$env:DB_HOST='postgres'`
     - `\$env:DB_PORT='5432'`
-    - `\$env:DB_USER='postgres'`
-    - `\$env:DB_PASSWORD='p@ssw0rd'`
-    - `\$env:DB_NAME='postify-db'`
-    - `\$env:JWT_SECRET='localdev'`
-  - Bash:
-    - `export POSTGRES_USER=postgres POSTGRES_PASSWORD='p@ssw0rd' POSTGRES_DB='postify-db'`
-    - `export DB_HOST=postgres DB_PORT=5432 DB_USER=postgres DB_PASSWORD='p@ssw0rd' DB_NAME='postify-db' JWT_SECRET='localdev'`
+    - `\$env:DB_USER='<POSTGRES_USER>'`
+    - `\$env:DB_PASSWORD='<POSTGRES_PASSWORD>'`
+    - `\$env:DB_NAME='<POSTGRES_DB>'`
+    - `\$env:JWT_SECRET='<JWT_SECRET>'`
+  - Bash (exemple avec placeholders):
+    - `export POSTGRES_USER='<POSTGRES_USER>' POSTGRES_PASSWORD='<POSTGRES_PASSWORD>' POSTGRES_DB='<POSTGRES_DB>'`
+    - `export DB_HOST='postgres' DB_PORT='5432' DB_USER="$POSTGRES_USER" DB_PASSWORD="$POSTGRES_PASSWORD" DB_NAME="$POSTGRES_DB" JWT_SECRET='<JWT_SECRET>'`
   - Démarrer:
     - `docker compose up -d --build`
   - Vérifier l’API:
     - `curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/readyz` → `200`
+
+## Configuration
+- Variables requises:
+  - `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`
+  - `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`
+  - `JWT_SECRET`
+- Local (placeholders):
+  - PowerShell:
+    - `\$env:POSTGRES_USER='<POSTGRES_USER>'`
+    - `\$env:POSTGRES_PASSWORD='<POSTGRES_PASSWORD>'`
+    - `\$env:POSTGRES_DB='<POSTGRES_DB>'`
+    - `\$env:DB_HOST='postgres'`
+    - `\$env:DB_PORT='5432'`
+    - `\$env:DB_USER='<POSTGRES_USER>'`
+    - `\$env:DB_PASSWORD='<POSTGRES_PASSWORD>'`
+    - `\$env:DB_NAME='<POSTGRES_DB>'`
+    - `\$env:JWT_SECRET='<JWT_SECRET>'`
+  - Bash:
+    - `export POSTGRES_USER='<POSTGRES_USER>' POSTGRES_PASSWORD='<POSTGRES_PASSWORD>' POSTGRES_DB='<POSTGRES_DB>'`
+    - `export DB_HOST='postgres' DB_PORT='5432' DB_USER="$POSTGRES_USER" DB_PASSWORD="$POSTGRES_PASSWORD" DB_NAME="$POSTGRES_DB" JWT_SECRET='<JWT_SECRET>'`
+- CI (GitHub Actions):
+  - Crée des secrets de repo: `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`, `JWT_SECRET`
+  - Le workflow les exporte en variables d’environnement pour `docker compose`
+- Notes:
+  - Pour les URI `psql`, encode les caractères spéciaux du mot de passe (ex: `@` → `%40`).
 
 ## Endpoints
 - Auth
