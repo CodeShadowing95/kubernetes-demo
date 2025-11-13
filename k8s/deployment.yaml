@@ -1,0 +1,47 @@
+apiVersion: apps/v1 # Version de l'API Kubernetes pour les ressources de type Deployment
+kind: Deployment # Type de ressource : déploiement de pods répliqués
+metadata: # Métadonnées de l'objet Kubernetes
+  name: postify-kubernetes-api # Nom du déploiement
+  labels: # Étiquettes pour organiser et sélectionner les ressources
+    app: postify-kubernetes-api # Label commun pour appairer selector et template
+spec: # Spécification du déploiement
+  replicas: 2 # Nombre de réplicas (pods) souhaités
+  selector: # Sélecteur des pods gérés par ce déploiement
+    matchLabels: # Doit correspondre aux labels du template ci-dessous
+      app: postify-kubernetes-api # Sélectionne les pods avec ce label
+  template: # Modèle de pod à créer par le déploiement
+    metadata: # Métadonnées du pod
+      labels: # Labels du pod (doivent matcher le selector du déploiement)
+        app: postify-kubernetes-api # Label partagé pour la sélection
+    spec: # Spécification du pod (conteneurs, volumes, etc.)
+      containers: # Liste des conteneurs du pod
+        - name: postify-kubernetes-api # Nom du conteneur
+          image: vizardo/postify-kubernetes-api:latest # Image Docker utilisée par le conteneur
+          ports: # Ports exposés par le conteneur
+            - containerPort: 3000 # Port sur lequel l'application écoute dans le conteneur
+          env: # Variables d'environnement injectées dans le conteneur
+            - name: NODE_ENV # Nom de la variable d'environnement
+              value: "production" # Mode production pour Node.js
+            - name: POD_NAME # Expose le nom du pod à l'application
+              valueFrom: # Valeur dérivée du champ du pod
+                fieldRef: # Référence à un champ des métadonnées du pod
+                  fieldPath: metadata.name # Récupère le nom du pod
+          resources: # Requêtes et limites de ressources pour scheduler et QoS
+            requests: # Ressources minimales garanties pour le conteneur
+              cpu: "100m" # 0.1 CPU demandé
+              memory: "128Mi" # 128 MiB de mémoire demandée
+            limits: # Ressources maximales autorisées pour le conteneur
+              cpu: "500m" # 0.5 CPU maximum
+              memory: "512Mi" # 512 MiB de mémoire maximum
+          readinessProbe: # Vérifie si le conteneur est prêt à recevoir du trafic
+            httpGet: # Sonde HTTP de readiness
+              path: /readyz # Endpoint de readiness exposé par l'app
+              port: 3000 # Port sondé
+            initialDelaySeconds: 5 # Délai avant la première sonde de readiness
+            periodSeconds: 10 # Fréquence des sondes de readiness
+          livenessProbe: # Vérifie si le conteneur est vivant (sinon redémarrage)
+            httpGet: # Sonde HTTP de liveness
+              path: /healthz # Endpoint de santé exposé par l'app
+              port: 3000 # Port sondé
+            initialDelaySeconds: 10 # Délai avant la première sonde de liveness
+            periodSeconds: 20 # Fréquence des sondes de liveness

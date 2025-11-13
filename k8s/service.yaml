@@ -1,0 +1,14 @@
+apiVersion: v1 # Version de l'API pour les ressources Service
+kind: Service # Type de ressource : expose des pods sur un port stable
+metadata: # Métadonnées du Service
+  name: postify-kubernetes-api-service # Nom du Service (DNS interne)
+  labels: # Étiquettes pour organiser et sélectionner les ressources
+    app: postify-kubernetes-api # Label commun pour le selector et les pods ciblés
+spec: # Spécification du Service
+  selector: # Sélecteur de labels pour cibler les pods derrière le Service
+    app: postify-kubernetes-api # Doit correspondre aux labels définis sur les pods
+  ports: # Ports exposés par le Service
+    - protocol: TCP # Protocole du port exposé
+      port: 3000 # Port du Service (stable dans le cluster)
+      targetPort: 3000 # Port du conteneur/pod ciblé par le Service
+  type: NodePort # Expose le Service sur chaque nœud (port auto entre 30000-32767 si non fixé)

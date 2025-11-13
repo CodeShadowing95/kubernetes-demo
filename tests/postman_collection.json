@@ -1,0 +1,239 @@
+{
+  "info": {
+    "name": "postify-kubernetes API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Register",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "const raw = pm.variables.replaceIn(pm.request.body && pm.request.body.raw || '{}');",
+              "let body = {}; try { body = JSON.parse(raw); } catch(e) {}",
+              "let provided = String((body && body.email) || '').trim();",
+              "if (!provided || /{{.*}}/.test(provided)) { provided = `user_${Date.now()}@example.com`; }",
+              "pm.environment.set('email', provided);"
+            ],
+            "type": "text/javascript"
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 201', function () { pm.response.to.have.status(201); });",
+              "const b = pm.response.json();",
+              "pm.expect(b).to.have.property('id');",
+              "pm.expect(b).to.have.property('email');",
+              "pm.expect(b.email).to.eql(pm.environment.get('email'));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+              "const b = pm.response.json();",
+              "pm.expect(b).to.have.property('token');",
+              "pm.environment.set('token', b.token);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Create Post A",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 201', function () { pm.response.to.have.status(201); });",
+              "const b = pm.response.json();",
+              "pm.expect(b).to.have.property('id');",
+              "pm.environment.set('postId1', b.id);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "url": { "raw": "{{baseUrl}}/posts", "host": ["{{baseUrl}}"], "path": ["posts"] },
+        "body": { "mode": "raw", "raw": "{\n  \"content\": \"Hello world A\"\n}" }
+      }
+    },
+    {
+      "name": "Create Post C",
+      "event": [
+        {
+          "listen": "test",
+          "script": { "exec": [ "pm.response.to.have.status(201);" ], "type": "text/javascript" }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "url": { "raw": "{{baseUrl}}/posts", "host": ["{{baseUrl}}"], "path": ["posts"] },
+        "body": { "mode": "raw", "raw": "{\n  \"content\": \"Hello world C\"\n}" }
+      }
+    },
+    {
+      "name": "Page 1 (limit=1)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+              "const b = pm.response.json();",
+              "pm.expect(b.items.length).to.eql(1);",
+              "pm.environment.set('firstPageId', b.items[0].id);",
+              "pm.environment.set('nextCursor', b.nextCursor);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "url": { "raw": "{{baseUrl}}/posts?limit=1", "host": ["{{baseUrl}}"], "path": ["posts"], "query": [ { "key": "limit", "value": "1" } ] }
+      }
+    },
+    {
+      "name": "Create Post B",
+      "event": [
+        {
+          "listen": "test",
+          "script": { "exec": [ "pm.response.to.have.status(201); pm.environment.set('postId2', pm.response.json().id);" ], "type": "text/javascript" }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "url": { "raw": "{{baseUrl}}/posts", "host": ["{{baseUrl}}"], "path": ["posts"] },
+        "body": { "mode": "raw", "raw": "{\n  \"content\": \"Hello world B\"\n}" }
+      }
+    },
+    {
+      "name": "Page 2 (cursor) no duplicate",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+              "const b = pm.response.json();",
+              "pm.expect(b.items.length).to.eql(1);",
+              "pm.expect(b.items[0].id).to.not.eql(Number(pm.environment.get('firstPageId')));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "url": { "raw": "{{baseUrl}}/posts?limit=1&cursor={{nextCursor}}", "host": ["{{baseUrl}}"], "path": ["posts"], "query": [ { "key": "limit", "value": "1" }, { "key": "cursor", "value": "{{nextCursor}}" } ] }
+      }
+    },
+    {
+      "name": "Like post (id1) once",
+      "event": [
+        { "listen": "test", "script": { "exec": [ "pm.response.to.have.status(201); const b=pm.response.json(); pm.expect(b.likes).to.eql(1);" ], "type": "text/javascript" } }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "url": { "raw": "{{baseUrl}}/posts/{{postId1}}/like", "host": ["{{baseUrl}}"], "path": ["posts", "{{postId1}}", "like"] }
+      }
+    },
+    {
+      "name": "Like post (id1) again no increment",
+      "event": [
+        { "listen": "test", "script": { "exec": [ "pm.response.to.have.status(201); const b=pm.response.json(); pm.expect(b.likes).to.eql(1);" ], "type": "text/javascript" } }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "url": { "raw": "{{baseUrl}}/posts/{{postId1}}/like", "host": ["{{baseUrl}}"], "path": ["posts", "{{postId1}}", "like"] }
+      }
+    },
+    {
+      "name": "Update post (id1)",
+      "event": [
+        { "listen": "test", "script": { "exec": [ "pm.response.to.have.status(200); const b=pm.response.json(); pm.expect(b.content).to.include('updated');" ], "type": "text/javascript" } }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "url": { "raw": "{{baseUrl}}/posts/{{postId1}}", "host": ["{{baseUrl}}"], "path": ["posts", "{{postId1}}"] },
+        "body": { "mode": "raw", "raw": "{\n  \"content\": \"Hello updated\"\n}" }
+      }
+    },
+    {
+      "name": "Delete post (id1)",
+      "event": [
+        { "listen": "test", "script": { "exec": [ "pm.response.to.have.status(204);" ], "type": "text/javascript" } }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "url": { "raw": "{{baseUrl}}/posts/{{postId1}}", "host": ["{{baseUrl}}"], "path": ["posts", "{{postId1}}"] }
+      }
+    },
+    {
+      "name": "Logout",
+      "event": [
+        { "listen": "test", "script": { "exec": [ "pm.response.to.have.status(204);" ], "type": "text/javascript" } }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "url": { "raw": "{{baseUrl}}/auth/logout", "host": ["{{baseUrl}}"], "path": ["auth", "logout"] }
+      }
+    },
+    {
+      "name": "Access after logout denied",
+      "event": [
+        { "listen": "test", "script": { "exec": [ "pm.response.to.have.status(401);" ], "type": "text/javascript" } }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "url": { "raw": "{{baseUrl}}/posts?limit=1", "host": ["{{baseUrl}}"], "path": ["posts"], "query": [ { "key": "limit", "value": "1" } ] }
+      }
+    }
+  ]
+}
