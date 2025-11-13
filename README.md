@@ -15,7 +15,7 @@
   <img src="https://www.postgresql.org/media/img/about/press/elephant.png" alt="PostgreSQL" height="80">
   <img src="https://www.docker.com/wp-content/uploads/2022/03/Moby-logo.png" alt="Docker" height="70">
   <img src="https://upload.wikimedia.org/wikipedia/commons/3/39/Kubernetes_logo_without_workmark.svg" alt="Kubernetes" height="80">
-  <img src="https://www.postman.com/assets/postman-logo.svg" alt="Postman" height="80">
+  <p align="left"> <a href="https://postman.com" target="_blank" rel="noreferrer"> <img src="https://www.vectorlogo.zone/logos/getpostman/getpostman-icon.svg" alt="postman" width="40" height="40"/> </a> </p>
   <img src="https://avatars.githubusercontent.com/u/44036562?s=200&v=4" alt="GitHub Actions" height="80">
 </p>
 
