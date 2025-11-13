@@ -1,5 +1,24 @@
 # Postify API
 
+[![CI](https://github.com/CodeShadowing95/kubernetes-demo/actions/workflows/pipeline.yaml/badge.svg)](https://github.com/CodeShadowing95/kubernetes-demo/actions/workflows/pipeline.yaml)
+![Node](https://img.shields.io/badge/node-18-brightgreen)
+![Express](https://img.shields.io/badge/express-5-blue)
+![PostgreSQL](https://img.shields.io/badge/postgres-16-blue)
+![Docker](https://img.shields.io/badge/docker-ready-2496ED?logo=docker&logoColor=white)
+![Newman](https://img.shields.io/badge/newman-tests%20passing-success)
+![License](https://img.shields.io/badge/license-ISC-blue)
+
+## Technologies
+<p align="center">
+  <img src="https://nodejs.org/static/images/logo.svg" alt="Node.js" width="80">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/6/64/Expressjs.png" alt="Express" height="80">
+  <img src="https://www.postgresql.org/media/img/about/press/elephant.png" alt="PostgreSQL" height="80">
+  <img src="https://www.docker.com/wp-content/uploads/2022/03/Moby-logo.png" alt="Docker" height="70">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/3/39/Kubernetes_logo_without_workmark.svg" alt="Kubernetes" height="80">
+  <img src="https://www.postman.com/assets/postman-logo.svg" alt="Postman" height="80">
+  <img src="https://avatars.githubusercontent.com/u/44036562?s=200&v=4" alt="GitHub Actions" height="80">
+</p>
+
 API de réseau social moderne avec Node.js/Express, Postgres et JWT — packagée avec Docker Compose, testée par Postman/Newman, intégrée en CI avec GitHub Actions, et prête pour Kubernetes.
 
 ## Aperçu
